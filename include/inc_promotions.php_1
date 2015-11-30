@@ -1,0 +1,197 @@
+<?php
+
+function chaine_liste_promotions($name, $valueTab, $req, $cnx)
+{
+	$select_annee  = "<select name='".$name."_annee' id='".$name."_annee'>\n" ;
+	$select_annee .= "<option value='0'>Année</option>\n" ;
+	$compteur_annee = 0 ;
+
+	$select_groupe  = "<select name='".$name."_groupe' id='".$name."_groupe'>\n";
+	$select_groupe .= "<option class='sub_0' value='0'>Domaine</option>\n" ;
+	$compteur_groupe = 0 ;
+
+	$select_niveau  = "<select name='".$name."_niveau' id='".$name."_niveau'>\n";
+	$select_niveau .= "<option class='sub_0' value='0'>Niveau</option>\n" ;
+	$compteur_niveau = 0 ;
+
+	$select_promo  = "<select name='$name' id='$name'>\n" ;
+	$select_promo .= "<option class='sub_0' value='0'>Promotion</option>\n" ;
+
+	$annee_precedente = "" ;
+	$groupe_precedent = "" ;
+	$niveau_precedent = "" ;
+
+	$promo_courante = "" ;
+	$niveau_courant = "" ;
+	$groupe_courant = "" ;
+
+	$res = mysqli_query($cnx, $req) ;
+	while ( $enr = mysqli_fetch_assoc($res) )
+	{
+		// Recuperation annee, groupe, niveau correspondant a la promotion
+		if ( FALSE )
+		{
+		}
+		if ( $enr["annee"] != $annee_precedente ) {
+			$compteur_annee++ ;
+			$annee_precedente = $enr["annee"] ;
+			$select_annee .= "<option value='".$compteur_annee."'" ;
+			if ( $valueTab[$name."_annee"] == $compteur_annee ) {
+				$select_annee .= " selected='selected'" ;
+			}
+			$select_annee .= ">".$enr["annee"]."</option>\n" ;
+		}
+		if ( $enr["groupe"] != $groupe_precedent ) {
+			$compteur_groupe++ ;
+			$groupe_precedent = $enr["groupe"] ;
+			$select_groupe .= "<option class='sub_".$compteur_annee."' value='".$compteur_groupe."'" ;
+			if ( $valueTab[$name."_groupe"] == $compteur_groupe ) {
+				$select_groupe .= " selected='selected'" ;
+				$groupe_courant = $compteur_groupe ;
+			}
+			$select_groupe .= ">".$enr["groupe"]."</option>\n" ;
+		}
+		if ( $enr["niveau"] != $niveau_precedent ) {
+			$compteur_niveau++ ;
+			$niveau_precedent = $enr["niveau"] ;
+			$select_niveau .= "<option class='sub_".$compteur_groupe."' value='".$compteur_niveau."'" ;
+			if ( $valueTab[$name."_niveau"] == $compteur_niveau ) {
+				$select_niveau .= " selected='selected'" ;
+				$niveau_courant = $compteur_niveau ;
+			}
+			$select_niveau .= ">".$enr["niveau"]."</option>\n" ;
+		}
+		$select_promo .= "<option class='sub_".$compteur_niveau."' value='".$enr["id_session"]."'" ;
+		if ( $valueTab["promo"] == $enr["id_session"] ) {
+			$select_promo .= " selected='selected'" ;
+			$promo_courante = $enr["id_session"] ;
+		}
+		$select_promo .= ">".$enr["intitule"]."</option>\n" ;
+		
+	}
+	
+	$select_annee .= "</select>\n" ;
+	$select_groupe .= "</select>\n" ;
+	$select_niveau .= "</select>\n" ;
+	$select_promo .= "</select>\n" ;
+	
+	$form .= $select_annee ;
+	$form .= $select_groupe ;
+	$form .= $select_niveau ;
+	$form .= "<br />" ;
+	$form .= $select_promo ;
+	
+	$script = "
+	<script type='text/javascript'>
+	$(document).ready(function()
+	{
+	    makeSublist('".$name."_niveau','".$name."', false,'$promo_courante');
+	    makeSublist('".$name."_groupe','".$name."_niveau', false,'$niveau_courant');
+	    makeSublist('".$name."_annee','".$name."_groupe', false,'$groupe_courant');
+	});
+	</script>
+	" ;
+
+	$resultat = array(
+		"form" => $form,
+		"script" => $script
+	) ;
+	return $resultat;
+}
+
+
+
+
+// Liste unique des promotions
+function liste_promotions($name, $value, $cnx, $empty=FALSE,
+	$imputations=FALSE // Pour la liste des imputations
+	)
+{
+	if ( intval($_SESSION["id"]) < 4 ) {
+		$requete = "SELECT id_session, annee, groupe, intitule, intit_ses
+				FROM atelier, session
+				WHERE session.id_atelier=atelier.id_atelier " ;
+	}
+	else {
+		$requete = "SELECT id_session, annee, groupe, intitule, intit_ses
+			FROM atelier, session, atxsel
+			WHERE session.id_atelier=atelier.id_atelier
+			AND atelier.id_atelier=atxsel.id_atelier
+			AND atxsel.id_sel='".$_SESSION["id"]."' " ;
+	}
+	if ( $imputations ) {
+//		$requete .= "AND session.imputations='Oui' " ;
+		$requete .= "AND session.annee>=2006 " ;
+	}
+	$requete .= "ORDER BY annee DESC, groupe, niveau, intitule" ;
+	$resultat = mysqli_query($cnx, $requete) ;
+
+	$liste  = "<select name='$name' id='$name'>\n" ;
+	if ( $empty ) {
+		$liste .= "<option value=''></option>\n" ;
+	}
+
+	$annee = 0 ;
+	$annee_precedente = "aucune" ;
+	$groupe = 0 ;
+	$groupe_precedent = "aucun" ;
+	while ( $ligne = mysqli_fetch_assoc($resultat) ) 
+	{
+		if ( $ligne["annee"] != $annee_precedente )
+		{
+			$annee_precedente = $ligne["annee"] ;
+			$groupe_precedent = "aucun" ;
+			if ( $annee  != 0 ) {
+					$liste .= "</optgroup>\n" ;
+			}
+			$annee++;
+			$liste .= "<optgroup class='annee' label='".$ligne["annee"]."'>\n" ;
+		}
+
+		if ( intval($_SESSION["id"]) < 4 )
+		{
+			if ( $ligne["groupe"] != $groupe_precedent ) {
+				if ( $groupe != 0 ) {
+					$liste .= "</optgroup>\n" ;
+				}
+				$groupe++ ;
+				$liste .= "<optgroup label=\"".$ligne["groupe"]." (".$ligne["annee"].")\">\n" ;
+				$groupe_precedent = $ligne["groupe"] ;
+		}
+		}
+
+		$liste .= "<option value='".$ligne["id_session"]."'" ;
+		if ( $ligne["id_session"] == $value ) {
+			$liste .= " selected='selected'" ;
+		}
+		$liste .= ">".$ligne["intitule"] ;
+		$liste .= " (".$ligne["intit_ses"].")" ;
+		$liste .= "</option>\n" ;
+
+//		$tableau[$ligne["id_atelier"]] = $ligne["intitule"] ;
+	}
+	if ( $groupe != 0 ) {
+		$liste .= "</optgroup>\n" ;
+	}
+	if ( $annee  != 0 ) {
+			$liste .= "</optgroup>\n" ;
+	}
+
+	$liste .= "</select>\n" ;
+
+	echo $liste ;
+
+//	return $tableau ;
+}
+
+function idpromotion2nom($id, $cnx)
+{
+	$requete = "SELECT intitule, intit_ses, evaluations, imputations
+		FROM atelier, session
+		WHERE session.id_atelier=atelier.id_atelier
+		AND session.id_session=$id" ;
+	$resultat = mysqli_query($cnx, $requete) ;
+	$ligne = mysqli_fetch_assoc($resultat) ;
+	return $ligne ;
+}
+?>
