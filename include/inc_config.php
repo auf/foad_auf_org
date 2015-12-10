@@ -28,8 +28,10 @@ define("LIEN_IMPUTER", "&nbsp;<strong>&rArr;</strong>&nbsp;&nbsp;Imputer") ;
 define("LIEN_IMPUTATION", "Imputation") ;
 define("LIEN_IMPUTER_2", "&nbsp;<strong>&rArr;</strong>&nbsp;&nbsp;Imputer 2<sup>ème</sup> année") ;
 define("LIEN_IMPUTATION_2", "Imputation 2<sup>ème</sup> année") ;
-define("LIEN_DIPLOMER", "&nbsp;<strong>&rArr;</strong>&nbsp;&nbsp;Diplômer") ;
-define("LIEN_ANCIEN", "Ancien") ;
+//define("LIEN_DIPLOMER", "&nbsp;<strong>&rArr;</strong>&nbsp;&nbsp;Diplômer") ;
+define("LIEN_RESULTAT", "&nbsp;<strong>&rArr;</strong>&nbsp;&nbsp;Résultat") ;
+//define("LIEN_ANCIEN", "Ancien") ;
+define("LIEN_ANCIEN", "Résultat") ;
 define("LIEN_CANDIDATURE", "Candidature") ;
 define("LIEN_DOSSIER", "Voir dossier") ;
 // Libellés des pictogrammes (en texte) de l'interface

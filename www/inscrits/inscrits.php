@@ -163,7 +163,6 @@ $liste_inscrits = substr($liste_inscrits, 0, -2) ;
 
 
 
-
 echo "<form action='criteres.php?id_session=$id_session' method='post'>" ;
 echo "<table class='formulaire'>\n" ;
 // Etat
@@ -199,6 +198,10 @@ echo selectPays($cnx, "inscrits_pays",
 echo "</td>\n" ;
 echo "</tr>\n" ;
 // Nom
+// Si on vient de la recherche, le parametre nom peut se trouver dans l'URL
+if ( isset($_GET["nom"]) AND (trim($_GET["nom"])!="") ) {
+	$_SESSION["filtres"]["inscrits"]["nom"] = urldecode(trim($_GET["nom"])) ;
+}
 echo "<tr>\n" ;
 echo "<th><label for='inscrits_nom'>Le nom du candidat contient&nbsp;:</label></th>\n" ;
 echo "<td><input type='text' name='inscrits_nom' id='inscrits_nom' size='20' maxlength='40' value=\"" ;
@@ -254,6 +257,7 @@ liste_tri("inscrits_tri", $_SESSION["filtres"]["inscrits"]["tri"]) ;
 echo "</td>\n" ;
 echo "</tr>\n" ;
 echo "<tr>\n<td colspan='3'><p class='c'>" ;
+echo "<a class='reinitialiser' href='reinitialiser.php?id_session=".$_GET["id_session"]."'>".LABEL_REINITIALISER."</a>" ;
 echo "<input type='submit' value=\"Appliquer ces critères d'affichage\"/>" ;
 echo "</td>\n</tr>\n" ;
 echo "</table>\n" ;
@@ -310,6 +314,12 @@ if ( !empty($_SESSION["filtres"]["inscrits"]["nom"]) ) {
 if ( ($_SESSION["filtres"]["inscrits"]["resultat"]!="") ) {
 	$requete .= " AND dossier.resultat='" . $_SESSION["filtres"]["inscrits"]["resultat"] ."'" ;
 }
+// Si on vient de la recherche, on n'affiche que le dossier voulu
+/*
+if ( $_GET["id_dossier"] != "" ) {
+	$requete .= " AND dossier.id_dossier='".$_GET["id_dossier"]."'" ;
+}
+*/
 
 $requete_tri = "" ;
 // On ajoute le tri par id_dossier pour pouvoir tenir compte des doublons

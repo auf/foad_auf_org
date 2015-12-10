@@ -95,7 +95,8 @@ if ( isset($_POST["promotion"]) )
 		mysqli_query($cnx, $req) ;
 		$id_dossier = mysqli_insert_id($cnx) ;
 
-		header("Location: /recherche/diplome.php?id_dossier=".$id_dossier) ;
+		//header("Location: /recherche/diplome.php?id_dossier=".$id_dossier) ;
+		header("Location: /inscrits/reinitialiser.php?id_session=".$T["promotion"]."&nom=".urlencode($T["nom"])) ;
 	}
 }
 // Formulaire non soumis

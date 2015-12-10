@@ -85,28 +85,29 @@ function resultat_recherche($T)
 	$res .= "</div>" ;
 
 	//
-	// Diplome
-	/*
-	if ( intval($_SESSION["id"]) < 1 ) {
+	// Diplome puis résultat
+	// Pour administrateur et sélectionneurs
+	if ( (intval($_SESSION["id"]) < 1) OR (intval($_SESSION["id"]) > 9) ) {
 		if	(
 				($T["etat_dossier"]=="Allocataire")
 				OR ($T["etat_dossier"]=="Payant")
+				OR ($T["etat_dossier"]=="Payant Nord")
 				OR ($T["etat_dossier"]=="Payant établissement")
 				OR ($T["etat_dossier"]=="Allocataire SCAC")
 				OR ($T["etat_dossier"]=="Externe")
 			)
 		{
-			if (  $T["diplome"] == "Non" ) {
+			if ( $T["resultat"] == "0" ) {
 				$res .= "<div style='float: right'>\n" ;
 				$res .= "<a target='_blank' " ;
-				$res .= "href='diplome.php?id_dossier=".$T["id_dossier"]."'>" ;
-				$res .= LIEN_DIPLOMER ;
+				$res .= "href='/inscrits/reinitialiser.php?id_session=".$T["id_session"]."&nom=".urlencode($T["nom"])."'>" ;
+				$res .= LIEN_RESULTAT ;
 				$res .= "</a>" ;
 				$res .= "</div>\n" ;
 			}
 		}
 	}
-	*/
+	
 
 	// Candidature, imputation
 	$res .= "<div>" ;
@@ -195,6 +196,14 @@ function resultat_recherche($T)
 		$res .= "'>".LIEN_ANCIEN."</a>" ;
 	}
 	*/
+	if ( $T["resultat"] != "0" ) {
+		$res .= " <span class='sepp'>-</span> " ;
+		$res .= "<a target='_blank' " ;
+		$res .= "href='/inscrits/reinitialiser.php?id_session=".$T["id_session"]."&nom=".urlencode($T["nom"])."'>" ;
+		$res .= LIEN_ANCIEN ;
+		$res .= "</a>" ;
+	}
+
 
 	$res .= "</div>" ;
 
