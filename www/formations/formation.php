@@ -297,16 +297,16 @@ if ( isset($_POST["action"]) AND ($_POST["action"] == "add") )
 			(groupe, niveau, nb_annees, intitule, ref_institution, ref_discipline, universite,
 			responsable, email_resp, commentaire)
 			VALUES(
-			'".$_POST["groupe"]."',
+			'".mysqli_real_escape_string($cnx, $_POST["groupe"])."',
 			'".$_POST["niveau"]."',
 			'".$_POST["nb_annees"]."',
-			'".$_POST["intitule"]."',
+			'".mysqli_real_escape_string($cnx, $_POST["intitule"])."',
 			'".$_POST["ref_institution"]."',
 			'".$_POST["ref_discipline"]."',
-			'".$_POST["universite"]."',
-			'".$_POST["responsable"]."',
+			'".mysqli_real_escape_string($cnx, $_POST["universite"])."',
+			'".mysqli_real_escape_string($cnx, $_POST["responsable"])."',
 			'".$_POST["email_resp"]."',
-			'".$_POST["commentaire"]."'
+			'".mysqli_real_escape_string($cnx, $_POST["commentaire"])."'
 			)" ;
 		mysqli_query($cnx, $requete) ;
 		header("Location: index.php") ;
